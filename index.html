@@ -3,45 +3,140 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Table Tennis Points Table</title>
+  <title>🏓 Table Tennis Points Tables</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f7f7f7; padding: 30px; }
-    h1 { text-align: center; color: #333; }
-    table { width: 80%; margin: 20px auto; border-collapse: collapse; background: white; box-shadow: 0 0 8px #ccc; }
-    th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
-    th { background: #0066cc; color: white; } /* Blue header */
-    tr:nth-child(even) { background-color: #e0f7fa; } /* Light cyan rows */
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+      padding: 30px;
+    }
+    h1, h2 {
+      text-align: center;
+      color: #333;
+    }
+    table {
+      width: 80%;
+      margin: 25px auto;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 0 8px #ccc;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+    tr:nth-child(even) {
+      background-color: #e0f7fa;
+    }
+
+    
+    /* Default alternate rows (for Table 1) */
+    #pointsTable1 tr:nth-child(even) {
+      background-color: #e0f7fa; /* light cyan */
+    }
+
+    /* ✅ Added new rules for Table 2 and Table 3 alternate row colors */
+    #pointsTable2 tr:nth-child(even) {
+      background-color: #d9fdd3; /* light green */
+    }
+
+    #pointsTable3 tr:nth-child(even) {
+      background-color: #ffe4ec; /* light pink */
+    }
+
+    /* Header colors for each table */
+    #pointsTable1 th { background: #003366; color: white; }   /* Deep Blue */
+    #pointsTable2 th { background: #2E8B57; color: white; }   /* Sea Green */
+    #pointsTable3 th { background: #FF69B4; color: white; }   /* Pink */
+
+
+    /*  Dark grey background for last column */
+    td.last-col {
+      background: #444;  /* dark grey */
+      font-weight: bold;
+      /* keep text color unchanged */
+    }
+    /* Red last column */
+    td.last-col {
+      color: red;
+      font-weight: bold;
+    }
+
+    /* Green last row */
+    tr.last-row td {
+      color: green;
+      font-weight: bold;
+    }
+
+    /* Black diagonal cells */
+    td.diagonal {
+      background: black;
+      color: white;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
-  <h1>🏓 Table Tennis Points Table</h1>
-  <table id="pointsTable">
-    <thead></thead>
-    <tbody></tbody>
-  </table>
+  <h1>🏓 Table Tennis Points Tables</h1>
+
+  <h2>OLD IS GOLD</h2>
+  <table id="pointsTable1"><thead></thead><tbody></tbody></table>
+
+  <h2>YOUNG GUNS</h2>
+  <table id="pointsTable2"><thead></thead><tbody></tbody></table>
+
+  <h2>WOMEN POWER</h2>
+  <table id="pointsTable3"><thead></thead><tbody></tbody></table>
 
   <script>
-    const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQz6e5h9UYUKRQyx7x-Nsv-n1bzy63v02iqUKN-mNzPriPj1WeFZw_vCKl9nask39DtyqJbT5ro8IJY/pub?gid=0&single=true&output=csv"
+    const sheetUrls = [
+      "https://docs.google.com/spreadsheets/d/e/2PACX-1vQz6e5h9UYUKRQyx7x-Nsv-n1bzy63v02iqUKN-mNzPriPj1WeFZw_vCKl9nask39DtyqJbT5ro8IJY/pub?gid=0&single=true&output=csv", // CSV 1
+      "https://docs.google.com/spreadsheets/d/e/2PACX-1vQz6e5h9UYUKRQyx7x-Nsv-n1bzy63v02iqUKN-mNzPriPj1WeFZw_vCKl9nask39DtyqJbT5ro8IJY/pub?gid=1010022134&single=true&output=csv", // CSV 2
+      "https://docs.google.com/spreadsheets/d/e/2PACX-1vQz6e5h9UYUKRQyx7x-Nsv-n1bzy63v02iqUKN-mNzPriPj1WeFZw_vCKl9nask39DtyqJbT5ro8IJY/pub?gid=585671482&single=true&output=csv"  // CSV 3
+    ];
 
-    async function loadTable() {
-      const response = await fetch(sheetUrl);
+    async function loadTable(url, tableId) {
+      const response = await fetch(url);
       const data = await response.text();
-      const rows = data.split("\n").map(r => r.split(","));
+      const rows = data.trim().split("\n").map(r => r.split(","));
+      const rowCount = rows.length;
+      const colCount = rows[0].length;
 
-      const table = document.getElementById("pointsTable");
+      const table = document.getElementById(tableId);
       const thead = table.querySelector("thead");
       const tbody = table.querySelector("tbody");
 
-      // Set header
+      // Header row
       thead.innerHTML = `<tr>${rows[0].map(h => `<th>${h}</th>`).join("")}</tr>`;
 
-      // Set body
-      tbody.innerHTML = rows.slice(1).map(row =>
-        `<tr>${row.map(cell => `<td>${cell}</td>`).join("")}</tr>`
-      ).join("");
+      // Body rows
+      let bodyHTML = "";
+      for (let i = 1; i < rowCount; i++) {
+        const row = rows[i];
+        const isLastRow = i === rowCount - 1;
+        let rowHTML = `<tr class="${isLastRow ? 'last-row' : ''}">`;
+
+        for (let j = 0; j < colCount; j++) {
+          const isLastCol = j === colCount - 1;
+          const isDiagonal = i === j; // same row & column index
+          let cls = "";
+          if (isLastCol) cls = "last-col";
+          if (isDiagonal) cls = "diagonal";
+          if (isLastCol && isDiagonal) cls = "diagonal"; // diagonal overrides
+          rowHTML += `<td class="${cls}">${row[j]}</td>`;
+        }
+
+        rowHTML += "</tr>";
+        bodyHTML += rowHTML;
+      }
+      tbody.innerHTML = bodyHTML;
     }
 
-    loadTable();
+    // Load all tables
+    loadTable(sheetUrls[0], "pointsTable1");
+    loadTable(sheetUrls[1], "pointsTable2");
+    loadTable(sheetUrls[2], "pointsTable3");
   </script>
 </body>
 </html>
