@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Table Tennis Points Table</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f7f7f7; padding: 30px; }
+    h1 { text-align: center; color: #333; }
+    table { width: 80%; margin: 20px auto; border-collapse: collapse; background: white; box-shadow: 0 0 8px #ccc; }
+    th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+    th { background: #4CAF50; color: white; }
+    tr:nth-child(even) { background-color: #f2f2f2; }
+  </style>
+</head>
+<body>
+  <h1>🏓 Table Tennis Points Table</h1>
+  <table id="pointsTable">
+    <thead></thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQz6e5h9UYUKRQyx7x-Nsv-n1bzy63v02iqUKN-mNzPriPj1WeFZw_vCKl9nask39DtyqJbT5ro8IJY/pub?gid=0&single=true&output=csv"
+
+    async function loadTable() {
+      const response = await fetch(sheetUrl);
+      const data = await response.text();
+      const rows = data.split("\n").map(r => r.split(","));
+
+      const table = document.getElementById("pointsTable");
+      const thead = table.querySelector("thead");
+      const tbody = table.querySelector("tbody");
+
+      // Set header
+      thead.innerHTML = `<tr>${rows[0].map(h => `<th>${h}</th>`).join("")}</tr>`;
+
+      // Set body
+      tbody.innerHTML = rows.slice(1).map(row =>
+        `<tr>${row.map(cell => `<td>${cell}</td>`).join("")}</tr>`
+      ).join("");
+    }
+
+    loadTable();
+  </script>
+</body>
+</html>
